@@ -2,13 +2,42 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>ARG Misterioso</title>
+  <title>Teste de Câmera</title>
   <style>
-    body, html { margin: 0; overflow: hidden; width: 100%; height: 100%; }
-    canvas { display: block; }
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      background: black;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   </style>
 </head>
 <body>
-  <script type="module" src="./main.js"></script>
+  <video id="camera" autoplay playsinline></video>
+
+  <script>
+    const video = document.getElementById('camera');
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" } // 🔹 câmera traseira
+        });
+        video.srcObject = stream;
+      } catch (err) {
+        console.error("Erro ao acessar a câmera:", err);
+        alert("Não foi possível acessar a câmera. Verifique permissões e HTTPS.");
+      }
+    }
+
+    startCamera();
+  </script>
 </body>
 </html>
