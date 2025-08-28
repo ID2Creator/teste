@@ -7,10 +7,10 @@
     body, html {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       width: 100%;
       height: 100%;
       background: black;
+      overflow: hidden;
     }
     canvas {
       display: block;
@@ -20,58 +20,59 @@
   </style>
 </head>
 <body>
-<script src="https://cdn.jsdelivr.net/npm/three@0.125.2/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
+  <!-- Bibliotecas -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.125.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
 
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-  // 🔹 Passo 1: pede permissão da câmera
-  try {
-    await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-  } catch (err) {
-    alert("Permissão da câmera negada ou erro de HTTPS!");
-    return;
-  }
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      // 🔹 Passo 1: Permissão da câmera traseira
+      try {
+        await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      } catch(err) {
+        alert("Não foi possível acessar a câmera!");
+        return;
+      }
 
-  // 🔹 Passo 2: inicializa o MindAR
-  const mindAR = new window.MINDAR.IMAGE.MindARThree({
-    container: document.body,
-    imageTargetSrc: 'mindar-images/target.mind',
-    maxTrack: 1,
-    uiLoading: "yes",
-    uiScanning: "yes",
-    videoSettings: { facingMode: "environment" }
-  });
+      // 🔹 Passo 2: Inicializa MindAR
+      const mindAR = new window.MINDAR.IMAGE.MindARThree({
+        container: document.body,
+        imageTargetSrc: 'mindar-images/target.mind',
+        maxTrack: 1,
+        uiLoading: "yes",
+        uiScanning: "yes",
+        videoSettings: { facingMode: "environment" }
+      });
 
-  const { renderer, scene, camera } = mindAR;
-  const anchor = mindAR.addAnchor(0);
+      const { renderer, scene, camera } = mindAR;
+      const anchor = mindAR.addAnchor(0);
 
-  // Objeto flutuante
-  const geometry = new THREE.PlaneGeometry(0.3, 0.1);
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
-  const floatingObj = new THREE.Mesh(geometry, material);
-  floatingObj.visible = false;
-  anchor.group.add(floatingObj);
+      // 🔹 Objeto flutuante (quadrado verde)
+      const geometry = new THREE.PlaneGeometry(0.3, 0.1);
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
+      const floatingObj = new THREE.Mesh(geometry, material);
+      floatingObj.visible = false;
+      anchor.group.add(floatingObj);
 
-  anchor.onTargetFound = () => floatingObj.visible = true;
-  anchor.onTargetLost = () => floatingObj.visible = false;
+      // Mostrar/ocultar quando imagem detectada/perdida
+      anchor.onTargetFound = () => floatingObj.visible = true;
+      anchor.onTargetLost = () => floatingObj.visible = false;
 
-  // 🔹 Ajusta proporção do canvas
-  function resizeRenderer() {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    renderer.setSize(vw, vh);
-    camera.aspect = vw / vh;
-    camera.updateProjectionMatrix();
-  }
-  window.addEventListener('resize', resizeRenderer);
+      // 🔹 Função para evitar barras pretas
+      function resizeRenderer() {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        renderer.setSize(vw, vh);
+        camera.aspect = vw / vh;
+        camera.updateProjectionMatrix();
+      }
+      window.addEventListener('resize', resizeRenderer);
 
-  await mindAR.start();
-  resizeRenderer();
-  renderer.setAnimationLoop(() => {
-    renderer.render(scene, camera);
-  });
-});
-</script>
+      await mindAR.start();
+      resizeRenderer();
+
+      renderer.setAnimationLoop(() => renderer.render(scene, camera));
+    });
+  </script>
 </body>
 </html>
