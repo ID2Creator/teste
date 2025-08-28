@@ -13,19 +13,19 @@
       background: black;
     }
     canvas {
+      display: block;
       width: 100%;
       height: 100%;
     }
   </style>
 </head>
 <body>
-  <!-- Carrega as libs como scripts normais -->
+  <!-- Carrega as libs -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.125.2/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
-      // Inicializa o MindAR
       const mindAR = new window.MINDAR.IMAGE.MindARThree({
         container: document.body,
         imageTargetSrc: 'mindar-images/target.mind',
@@ -42,19 +42,29 @@
       const { renderer, scene, camera } = mindAR;
       const anchor = mindAR.addAnchor(0);
 
-      // Criar objeto simples (um quadrado verde flutuante)
+      // Objeto flutuante (quadrado verde)
       const geometry = new THREE.PlaneGeometry(0.3, 0.1);
       const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
       const floatingObj = new THREE.Mesh(geometry, material);
       floatingObj.visible = false;
       anchor.group.add(floatingObj);
 
-      // Mostrar/ocultar quando detectar a imagem
       anchor.onTargetFound = () => floatingObj.visible = true;
       anchor.onTargetLost = () => floatingObj.visible = false;
 
-      // Inicia o AR
+      // Função para manter proporção do canvas igual ao vídeo da câmera
+      function resizeRenderer() {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        renderer.setSize(vw, vh);
+        camera.aspect = vw / vh;
+        camera.updateProjectionMatrix();
+      }
+      window.addEventListener('resize', resizeRenderer);
+
       await mindAR.start();
+      resizeRenderer(); // ajusta inicialmente
+
       renderer.setAnimationLoop(() => {
         renderer.render(scene, camera);
       });
