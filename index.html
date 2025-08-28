@@ -19,47 +19,46 @@
   </style>
 </head>
 <body>
-  <script type="module">
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.125.1/build/three.module.js';
-    import { MindARThree } from 'https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js';
+  <!-- Carrega as libs como scripts normais -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.125.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
 
-    async function startAR() {
-      const mindAR = new MindARThree({
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Inicializa o MindAR
+      const mindAR = new window.MINDAR.IMAGE.MindARThree({
         container: document.body,
-        imageTargetSrc: 'mindar-images/target.mind', // coloque seu arquivo .mind aqui
+        imageTargetSrc: 'mindar-images/target.mind',
         maxTrack: 1,
-        uiLoading: "true",
-        uiScanning: "true",
+        uiLoading: "yes",
+        uiScanning: "yes",
+        filterMinCF: 0.001,
+        filterBeta: 0.001,
+        warmupTolerance: 5,
+        missTolerance: 5,
         videoSettings: { facingMode: "environment" } // câmera traseira
       });
 
       const { renderer, scene, camera } = mindAR;
-
-      // Anchor onde o código/texto vai aparecer
       const anchor = mindAR.addAnchor(0);
 
-      // Criando objeto flutuante (aqui você pode colocar URL, texto, QR code, etc.)
+      // Criar objeto simples (um quadrado verde flutuante)
       const geometry = new THREE.PlaneGeometry(0.3, 0.1);
-      const material = new THREE.MeshBasicMaterial({ 
-        color: 0x00ff00, 
-        side: THREE.DoubleSide 
-      });
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
       const floatingObj = new THREE.Mesh(geometry, material);
-      floatingObj.position.set(0, 0, 0);
-      floatingObj.visible = false; // começa invisível
+      floatingObj.visible = false;
       anchor.group.add(floatingObj);
 
-      // Mostrar/ocultar objeto quando a imagem for detectada/perdida
+      // Mostrar/ocultar quando detectar a imagem
       anchor.onTargetFound = () => floatingObj.visible = true;
       anchor.onTargetLost = () => floatingObj.visible = false;
 
+      // Inicia o AR
       await mindAR.start();
       renderer.setAnimationLoop(() => {
         renderer.render(scene, camera);
       });
-    }
-
-    startAR();
+    });
   </script>
 </body>
 </html>
