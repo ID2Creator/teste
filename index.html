@@ -1,78 +1,47 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>ARG MindAR Final</title>
+  <meta charset="utf-8">
+  <title>ARG com MindAR</title>
+  <script src="https://cdn.jsdelivr.net/npm/aframe@1.2.0/dist/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image-aframe.prod.js"></script>
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: black;
-      overflow: hidden;
-    }
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+a-scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
   </style>
 </head>
 <body>
-  <!-- Bibliotecas -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.125.2/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
+  <a-scene mindar-image="imageTargetSrc: /mindar-images/targets.mind;" 
+           embedded 
+           color-space="sRGB" 
+           renderer="colorManagement: true, physicallyCorrectLights" 
+           vr-mode-ui="enabled: false">
 
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      // 🔹 Passo 1: Permissão da câmera traseira
-      try {
-        await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-      } catch(err) {
-        alert("Não foi possível acessar a câmera!");
-        return;
-      }
+    <!-- Câmera -->
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      // 🔹 Passo 2: Inicializa MindAR
-      const mindAR = new window.MINDAR.IMAGE.MindARThree({
-        container: document.body,
-        imageTargetSrc: 'mindar-images/target.mind',
-        maxTrack: 1,
-        uiLoading: "yes",
-        uiScanning: "yes",
-        videoSettings: { facingMode: "environment" }
-      });
-
-      const { renderer, scene, camera } = mindAR;
-      const anchor = mindAR.addAnchor(0);
-
-      // 🔹 Objeto flutuante (quadrado verde)
-      const geometry = new THREE.PlaneGeometry(0.3, 0.1);
-      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
-      const floatingObj = new THREE.Mesh(geometry, material);
-      floatingObj.visible = false;
-      anchor.group.add(floatingObj);
-
-      // Mostrar/ocultar quando imagem detectada/perdida
-      anchor.onTargetFound = () => floatingObj.visible = true;
-      anchor.onTargetLost = () => floatingObj.visible = false;
-
-      // 🔹 Função para evitar barras pretas
-      function resizeRenderer() {
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        renderer.setSize(vw, vh);
-        camera.aspect = vw / vh;
-        camera.updateProjectionMatrix();
-      }
-      window.addEventListener('resize', resizeRenderer);
-
-      await mindAR.start();
-      resizeRenderer();
-
-      renderer.setAnimationLoop(() => renderer.render(scene, camera));
-    });
-  </script>
+    <!-- Entidade que aparece quando a imagem é detectada -->
+    <a-entity mindar-image-target="targetIndex: 0">
+      <a-text value="CÓDIGO SECRETO: 3945" 
+              color="red" 
+              position="0 0 0" 
+              scale="1.5 1.5 1.5">
+      </a-text>
+    </a-entity>
+  </a-scene>
 </body>
 </html>
