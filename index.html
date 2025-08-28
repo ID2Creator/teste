@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>ARG com MindAR</title>
+  <title>ARG MindAR Final</title>
   <style>
     body, html {
       margin: 0;
@@ -26,7 +26,7 @@
     async function startAR() {
       const mindAR = new MindARThree({
         container: document.body,
-        imageTargetSrc: './mindar-images/target.mind', // seu arquivo .mind
+        imageTargetSrc: 'mindar-images/target.mind', // coloque seu arquivo .mind aqui
         maxTrack: 1,
         uiLoading: "true",
         uiScanning: "true",
@@ -35,17 +35,21 @@
 
       const { renderer, scene, camera } = mindAR;
 
-      // Anchor que aparece quando a imagem é detectada
+      // Anchor onde o código/texto vai aparecer
       const anchor = mindAR.addAnchor(0);
 
-      // Um objeto simples flutuante (pode trocar depois por texto 3D ou QR code)
-      const geometry = new THREE.BoxGeometry(0.1, 0.05, 0.01);
-      const material = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // vermelho pra ver
+      // Criando objeto flutuante (aqui você pode colocar URL, texto, QR code, etc.)
+      const geometry = new THREE.PlaneGeometry(0.3, 0.1);
+      const material = new THREE.MeshBasicMaterial({ 
+        color: 0x00ff00, 
+        side: THREE.DoubleSide 
+      });
       const floatingObj = new THREE.Mesh(geometry, material);
       floatingObj.position.set(0, 0, 0);
+      floatingObj.visible = false; // começa invisível
       anchor.group.add(floatingObj);
 
-      // Mostra/oculta o objeto quando a imagem é detectada/perdida
+      // Mostrar/ocultar objeto quando a imagem for detectada/perdida
       anchor.onTargetFound = () => floatingObj.visible = true;
       anchor.onTargetLost = () => floatingObj.visible = false;
 
